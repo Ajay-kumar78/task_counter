@@ -98,15 +98,10 @@ http://localhost:5173
 ### Dashboard
 
 
-```
-/public/images/leptop_view.jpeg
-```
-
-### Mobile View
-
-```
-/public/images/phone_view.jpeg
-```
+<p align="center">
+  <img src="public/images/leptop_view.png" width="70%">
+  <img src="public/images/phone_view.jpeg" width="20%">
+</p>
 
 ---
 
