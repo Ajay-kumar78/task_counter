@@ -1,20 +1,140 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🚀 Task Orchestrator – Smart Task Management Web App
 
-# Run and deploy your AI Studio app
+Task Orchestrator is a modern and responsive task management web application that helps users organize, track, and manage their daily tasks efficiently. The application provides a clean interface, smooth animations, and a simple workflow for productivity.
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/2c9b1fd4-ca70-4341-8db2-e130a2052d45
+## 📌 Features
 
-## Run Locally
+* ✅ Create new tasks quickly
+* 📝 Manage and organize tasks easily
+* ✔️ Mark tasks as completed or pending
+* 🗑️ Delete tasks
+* ⚡ Task priority system (Normal / Urgent)
+* 📅 Timeline view of tasks
+* 📱 Fully responsive (Desktop + Mobile)
+* 🎨 Clean modern UI
+* ✨ Smooth animations and interactions
 
-**Prerequisites:**  Node.js
+---
+
+## 🛠 Tech Stack
+
+**Frontend**
+
+* React
+* TypeScript
+
+**UI & Styling**
+
+* Tailwind CSS
+* Lucide React Icons
+* Framer Motion (Animations)
+
+**Deployment**
+
+* Vercel
+
+---
+
+## 📂 Project Structure
+
+```
+src
+│
+├── components
+│   ├── TaskCard.tsx
+│   ├── TaskList.tsx
+│   └── Navbar.tsx
+│
+├── types
+│   └── task.ts
+│
+├── utils
+│   └── helpers.ts
+│
+├── App.tsx
+└── main.tsx
+```
+
+---
+
+## ⚙️ Installation & Setup
+
+Clone the repository
+
+```
+git clone https://github.com/your-username/task-orchestrator.git
+```
+
+Go to the project directory
+
+```
+cd task-orchestrator
+```
+
+Install dependencies
+
+```
+npm install
+```
+
+Run the development server
+
+```
+npm run dev
+```
+
+Now open in browser
+
+```
+http://localhost:5173
+```
+
+---
+
+## 📸 Screenshots
+
+### Dashboard
 
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```
+/public/images/leptop_view.jpeg
+```
+
+### Mobile View
+
+```
+/public/images/phone_view.jpeg
+```
+
+---
+
+## 🌐 Live Demo
+
+```
+https://your-project-name.vercel.app
+```
+
+---
+
+## 📈 Future Improvements
+
+* User authentication
+* Cloud database integration
+* Drag & drop tasks
+* Task reminders
+* Notification system
+
+---
+
+## 👨‍💻 Author
+
+**Ajay Kumar**
+full stack devleper
+
+---
+
+## ⭐ Support
+
+If you like this project, consider giving it a ⭐ on GitHub!
