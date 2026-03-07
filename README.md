@@ -99,7 +99,10 @@ http://localhost:5173
 
 
 <p align="center">
+   <p>leptop view</p>
   <img src="public/images/leptop_view.png" width="70%">
+  <br>
+  <p>phone view</p>
   <img src="public/images/phone_view.jpeg" width="20%">
 </p>
 
