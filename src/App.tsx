@@ -189,7 +189,7 @@ export default function App() {
   />
 )}
       <aside className={cn(
-        "fixed md:static top-0 left-0 h-full w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-8 transition-transform z-50",
+        "fixed md:static top-0 left-0 min-h-screen w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6 flex flex-col justify-between transition-transform z-50",
         sidebarOpen ? "translate-x-0" : "-translate-x-full",
         "md:translate-x-0"
       )}>
@@ -200,7 +200,7 @@ export default function App() {
           <span className="font-bold text-lg tracking-tight dark:text-white">AJAY AI</span>
         </div>
 
-        <nav className="flex flex-col gap-1">
+        <nav className="flex flex-col gap-1 mt-6">
 
   <NavItem 
     icon={<LayoutDashboard size={18} />} 
