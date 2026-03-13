@@ -1,48 +1,18 @@
+import { createClient } from "@supabase/supabase-js";
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import { WebSocketServer, WebSocket } from "ws";
 import { createServer as createHttpServer } from "http";
-import Database from "better-sqlite3";
 import { GoogleGenAI } from "@google/genai";
 import path from "path";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const db = new Database("tasks.db");
-
-// Initialize database
-db.exec(`
-  CREATE TABLE IF NOT EXISTS tasks (
-    id TEXT PRIMARY KEY,
-    title TEXT NOT NULL,
-    description TEXT,
-    status TEXT DEFAULT 'pending',
-    priority TEXT DEFAULT 'medium',
-    due_date TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
-  CREATE TABLE IF NOT EXISTS subtasks (
-    id TEXT PRIMARY KEY,
-    task_id TEXT,
-    title TEXT NOT NULL,
-    completed INTEGER DEFAULT 0,
-    FOREIGN KEY(task_id) REFERENCES tasks(id) ON DELETE CASCADE
-  );
-`);
-
-// Migration: Add due_date if it doesn't exist (for existing databases)
-const tableInfo = db.prepare("PRAGMA table_info(tasks)").all();
-const hasDueDate = tableInfo.some((col: any) => col.name === 'due_date');
-
-if (!hasDueDate) {
-  try {
-    db.exec("ALTER TABLE tasks ADD COLUMN due_date TEXT");
-    console.log("Migration: Added due_date column to tasks table.");
-  } catch (e) {
-    console.error("Migration failed:", e);
-  }
-}
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_KEY!
+);
 
 async function startServer() {
   const app = express();
@@ -62,51 +32,61 @@ async function startServer() {
   };
 
   // API Routes
-  app.get("/api/tasks", (req, res) => {
-    const tasks = db.prepare("SELECT * FROM tasks ORDER BY created_at DESC").all();
-    const tasksWithSubtasks = tasks.map((task: any) => {
-      const subtasks = db.prepare("SELECT * FROM subtasks WHERE task_id = ?").all(task.id);
-      return { ...task, subtasks };
-    });
-    res.json(tasksWithSubtasks);
-  });
+  app.get("/api/tasks", async (req, res) => {
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-  app.post("/api/tasks", (req, res) => {
-    const { id, title, description, priority, due_date } = req.body;
-    db.prepare("INSERT INTO tasks (id, title, description, priority, due_date) VALUES (?, ?, ?, ?, ?)")
-      .run(id, title, description, priority, due_date);
-    
-    const newTask = db.prepare("SELECT * FROM tasks WHERE id = ?").get(id);
-    (newTask as any).subtasks = [];
-    
-    broadcast({ type: 'TASK_CREATED', payload: newTask });
-    res.status(201).json(newTask);
-  });
+  if (error) return res.status(500).json(error);
 
-  app.patch("/api/tasks/:id", (req, res) => {
-    const { id } = req.params;
-    const { status, priority, due_date } = req.body;
-    
-    if (status) {
-      db.prepare("UPDATE tasks SET status = ? WHERE id = ?").run(status, id);
-    }
-    if (priority) {
-      db.prepare("UPDATE tasks SET priority = ? WHERE id = ?").run(priority, id);
-    }
-    if (due_date !== undefined) {
-      db.prepare("UPDATE tasks SET due_date = ? WHERE id = ?").run(due_date, id);
-    }
+  res.json(data);
+});
 
-    broadcast({ type: 'TASK_UPDATED', payload: { id, status, priority, due_date } });
-    res.json({ success: true });
-  });
+  app.post("/api/tasks", async (req, res) => {
+  const { id, title, description, priority, due_date } = req.body;
 
-  app.delete("/api/tasks/:id", (req, res) => {
-    const { id } = req.params;
-    db.prepare("DELETE FROM tasks WHERE id = ?").run(id);
-    broadcast({ type: 'TASK_DELETED', payload: id });
-    res.json({ success: true });
-  });
+  const { data, error } = await supabase
+    .from("tasks")
+    .insert([{ id, title, description, priority, due_date }])
+    .select();
+
+  if (error) return res.status(500).json(error);
+
+  broadcast({ type: "TASK_CREATED", payload: data[0] }); // 👈 add this
+
+  res.status(201).json(data);
+});
+
+  app.patch("/api/tasks/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const { error } = await supabase
+    .from("tasks")
+    .update(req.body)
+    .eq("id", id);
+
+  if (error) return res.status(500).json(error);
+
+  broadcast({ type: "TASK_UPDATED", payload: { id, ...req.body } }); // 👈 add
+
+  res.json({ success: true });
+});
+
+  app.delete("/api/tasks/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const { error } = await supabase
+    .from("tasks")
+    .delete()
+    .eq("id", id);
+
+  if (error) return res.status(500).json(error);
+
+  broadcast({ type: "TASK_DELETED", payload: id }); // 👈 add this
+
+  res.json({ success: true });
+});
 
   app.post("/api/ai/breakdown", async (req, res) => {
     const { title, description } = req.body;
@@ -149,5 +129,4 @@ async function startServer() {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
-
 startServer();
